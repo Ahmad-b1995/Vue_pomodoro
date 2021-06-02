@@ -1,10 +1,10 @@
 <template>
   <div class="hello">
     <div class="card">
-      <section :class="`all_cards ${'gone'+focus_setup_page}`">
-        <section class="focus_card ">
+      <section :class="`all_cards ${'gone' + focus_setup_page}`">
+        <section class="focus_card">
           <!-- set up focus time -->
-          <h1 class="focus_time_title">set up focus time</h1>
+          <h1 class="focus_time_title">set up focus time 🎯</h1>
           <div class="counter">
             <button class="minus" @click="focus_time--">-</button>
             <h2>{{ focus_time }}</h2>
@@ -14,30 +14,47 @@
         </section>
         <section class="focus_card">
           <!-- set up focus time -->
-          <h1 class="focus_time_title">set up focus time</h1>
+          <h1 class="focus_time_title">set up break time 💤</h1>
           <div class="counter">
-            <button class="minus" @click="focus_time--">-</button>
-            <h2>{{ focus_time }}</h2>
-            <button class="plus" @click="focus_time++">+</button>
+            <button class="minus" @click="break_time--">-</button>
+            <h2>{{ break_time }}</h2>
+            <button class="plus" @click="break_time++">+</button>
           </div>
-          <button class="next" @click="focus_setup_page = 3">next</button>
+          <div>
+            <button class="back" @click="focus_setup_page = 1">back</button>
+            <button class="next" @click="focus_setup_page = 3">next</button>
+          </div>
         </section>
         <section class="focus_card">
           <!-- set up focus time -->
-          <h1 class="focus_time_title">set up focus time</h1>
-          <div class="counter">
-            <button class="minus" @click="focus_time--">-</button>
-            <h2>{{ focus_time }}</h2>
-            <button class="plus" @click="focus_time++">+</button>
+          <div class="setting_and_title">
+            <img
+              class="setting_icon"
+              src="@/assets/setting.png"
+              @click="focus_setup_page = 1"
+            />
+            <h1 class="focus_time_title">get to work!! 🏃‍♂️🏃</h1>
           </div>
-          <button class="next" @click="focus_setup_page">next</button>
+          <div class="counter">
+            <h2>{{ minutes }} : {{ seconds }}</h2>
+          </div>
+          <button
+            class="back"
+            v-if="!is_started"
+            @click="
+              start_pomodoro();
+              is_started = !is_started;
+            "
+          >
+            start
+          </button>
+
+          <div v-if="is_started">
+            <button class="back" @click="focus_setup_page = 2">pause</button>
+            <button class="next" @click="focus_setup_page = 3">stop</button>
+          </div>
         </section>
       </section>
-
-      <!-- <div>{{ work_time }}</div>
-      <input type="text" v-model="work_time" />
-      <input type="text" v-model="interval" />
-      <button @click="start_pomodoro">start</button> -->
     </div>
   </div>
 </template>
@@ -48,8 +65,12 @@ export default {
   data() {
     return {
       focus_time: 25,
+      break_time: 5,
+      is_started: false,
       interval: 0,
       focus_setup_page: 1,
+      minutes: 0,
+      seconds: 0,
     };
   },
   methods: {
@@ -62,17 +83,22 @@ export default {
           }, millisecond);
         });
       }
-      const aysncsecond_calculator = this.work_time * 60 * 60;
-      this.work_time = aysncsecond_calculator;
+      this.minutes = this.focus_time;
+      this.seconds = 60;
 
-      for (var i = 0; i < aysncsecond_calculator; i++) {
+      for (var i = 60; i > -1; i--) {
         await timeOut(1000);
-
-        this.work_time--;
+        this.seconds--;
+        console.log(i);
+        if (this.seconds === -1) {
+          this.minutes--;
+          this.seconds = 60;
+          i = 61;
+        }
+        if (this.minutes === 0 && this.seconds === 0) break;
       }
     },
   },
-
 };
 </script>
 
@@ -118,7 +144,6 @@ button:active {
   height: 100%;
   width: 1080px;
   transition: all 900ms ease;
-
 }
 
 .focus_card {
@@ -130,7 +155,10 @@ button:active {
   width: 365px;
 }
 
-.gone2{
+.gone1 {
+  transform: translateX(0px);
+}
+.gone2 {
   transform: translateX(-360px);
 }
 
@@ -162,10 +190,33 @@ button:active {
   aspect-ratio: 1/1;
 }
 
-.next {
+.next,
+.back {
   padding: 0.5rem;
+  margin: 0 0.2rem;
   border-radius: 0.5rem;
   font-size: 0.98rem;
   font-weight: 400;
+}
+
+.setting_and_title {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.setting_and_title h1 {
+  flex: 1;
+}
+
+.setting_icon {
+  height: 1rem;
+  cursor: pointer;
+}
+
+.setting_icon:hover {
+  transform: scale(1.2);
 }
 </style>
