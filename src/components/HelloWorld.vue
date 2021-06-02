@@ -27,20 +27,15 @@
         </section>
         <section class="focus_card">
           <!-- set up focus time -->
-          <div class="setting_and_title">
-            <img
-              class="setting_icon"
-              src="@/assets/setting.png"
-              @click="focus_setup_page = 1"
-            />
-            <h1 class="focus_time_title">get to work!! 🏃‍♂️🏃</h1>
-          </div>
+
+          <h1 class="focus_time_title">
+            {{ is_break ? "yay! let's take a break 🎉" : "get to work!! 🏃‍♂️🏃" }}
+          </h1>
           <div class="counter">
             <h2>{{ minutes }} : {{ seconds }}</h2>
           </div>
           <button
-            class="back"
-            v-if="!is_started"
+            :class="!is_started ? 'back' : 'back invisible'"
             @click="
               start_pomodoro();
               is_started = !is_started;
@@ -48,11 +43,6 @@
           >
             start
           </button>
-
-          <div v-if="is_started">
-            <button class="back" @click="focus_setup_page = 2">pause</button>
-            <button class="next" @click="focus_setup_page = 3">stop</button>
-          </div>
         </section>
       </section>
     </div>
@@ -71,6 +61,7 @@ export default {
       focus_setup_page: 1,
       minutes: 0,
       seconds: 0,
+      is_break: false,
     };
   },
   methods: {
@@ -83,13 +74,30 @@ export default {
           }, millisecond);
         });
       }
-      this.minutes = this.focus_time;
+      this.minutes = this.focus_time - 1;
       this.seconds = 60;
 
       for (var i = 60; i > -1; i--) {
         await timeOut(1000);
         this.seconds--;
         console.log(i);
+        if (this.seconds === -1) {
+          this.minutes--;
+          this.seconds = 60;
+          i = 61;
+        }
+        if (this.minutes === 0 && this.seconds === 0) break;
+      }
+
+      // handling break timer
+      this.is_break = true;
+      this.minutes = this.break_time - 1;
+      this.seconds = 60;
+
+      for (var x = 60; x > -1; x--) {
+        await timeOut(1000);
+        this.seconds--;
+        console.log(x);
         if (this.seconds === -1) {
           this.minutes--;
           this.seconds = 60;
@@ -218,5 +226,9 @@ button:active {
 
 .setting_icon:hover {
   transform: scale(1.2);
+}
+
+.invisible {
+  visibility: hidden;
 }
 </style>
